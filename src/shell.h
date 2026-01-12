@@ -12,6 +12,7 @@
 #ifndef     __SHELL_H__
 #define     __SHELL_H__
 
+#include "stdint.h"
 #include "shell_cfg.h"
 
 #define     SHELL_VERSION               "3.0.6"                 /**< 版本号 */
@@ -386,7 +387,7 @@ typedef struct shell_command
         } user;                                                 /**< 用户定义 */
         struct
         {
-            int value;                                          /**< 按键键值 */
+            int32_t value;                                      /**< 按键键值 */
             void (*function)(Shell *);                          /**< 按键执行函数 */
             const char *desc;                                   /**< 按键描述 */
         } key;                                                  /**< 按键定义 */

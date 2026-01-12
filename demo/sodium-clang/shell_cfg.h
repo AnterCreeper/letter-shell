@@ -12,13 +12,19 @@
 #ifndef __SHELL_CFG_H__
 #define __SHELL_CFG_H__
 
+#pragma clang diagnostic ignored "-Wdeprecated-non-prototype"
+
+/**
+ * @brief 是否支持浮点数
+ */
+#define     SHELL_FLOAT_ENABLE          0
 
 /**
  * @brief 是否使用默认shell任务while循环，使能宏`SHELL_USING_TASK`后此宏有意义
  *        使能此宏，则`shellTask()`函数会一直循环读取输入，一般使用操作系统建立shell
  *        任务时使能此宏，关闭此宏的情况下，一般适用于无操作系统，在主循环中调用`shellTask()`
  */
-#define     SHELL_TASK_WHILE            1
+#define     SHELL_TASK_WHILE            0
 
 /**
  * @brief 是否使用命令导出方式
@@ -36,7 +42,7 @@
 /**
  * @brief 支持shell尾行模式
  */
-#define     SHELL_SUPPORT_END_LINE      0
+#define     SHELL_SUPPORT_END_LINE      1
 
 /**
  * @brief 是否在输出命令列表中列出用户
@@ -85,7 +91,7 @@
 
 /**
  * @brief shell命令参数最大数量
- *        包含命令名在内，超过8个参数并且使用了参数自动转换的情况下，需要修改源码
+ *        包含命令名在内，超过16个参数并且使用了参数自动转换的情况下，需要修改源码
  */
 #define     SHELL_PARAMETER_MAX_NUMBER  8
 
@@ -123,19 +129,19 @@
  *        定义此宏为获取系统Tick，如`HAL_GetTick()`
  * @note 此宏不定义时无法使用双击tab补全命令help，无法使用shell超时锁定
  */
-#define     SHELL_GET_TICK()            0
+#define     SHELL_GET_TICK()            clock()
 
 /**
  * @brief shell内存分配
  *        shell本身不需要此接口，若使用shell伴生对象，需要进行定义
  */
-#define     SHELL_MALLOC(size)          0
+#define     SHELL_MALLOC(size)          malloc(size)
 
 /**
  * @brief shell内存释放
  *        shell本身不需要此接口，若使用shell伴生对象，需要进行定义
  */
-#define     SHELL_FREE(obj)             0
+#define     SHELL_FREE(obj)             free(obj)
 
 /**
  * @brief 是否显示shell信息
@@ -150,7 +156,7 @@
 /**
  * @brief shell默认用户
  */
-#define     SHELL_DEFAULT_USER          "letter"
+#define     SHELL_DEFAULT_USER          "sodium"
 
 /**
  * @brief shell默认用户密码

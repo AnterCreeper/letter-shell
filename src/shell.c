@@ -1675,7 +1675,7 @@ void shellHandler(Shell *shell, char data)
 
     /* 根据记录的按键键值计算当前字节在按键键值中的偏移 */
     char keyByteOffset = 24;
-    int keyFilter = 0x00000000;
+    int32_t keyFilter = 0x00000000;
     if ((shell->parser.keyValue & 0x0000FF00) != 0x00000000)
     {
         keyByteOffset = 0;

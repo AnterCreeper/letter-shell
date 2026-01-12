@@ -225,12 +225,14 @@ static unsigned int shellExtParseNumber(char *string)
         devide *= 10;
         p++;
     }
+#if SHELL_FLOAT_ENABLE == 1
     if (type == NUM_TYPE_FLOAT && devide != 0)
     {
         valueFloat = (float)valueInt / devide * sign;
         return *(unsigned int *)(&valueFloat);
     }
     else
+#endif
     {
         return valueInt * sign;
     }
