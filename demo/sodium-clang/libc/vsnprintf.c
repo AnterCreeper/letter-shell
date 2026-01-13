@@ -215,3 +215,14 @@ int vsnprintf(char *sbuf, size_t n, const char *format, va_list args)
   va_end(args);
   return pc;
 }
+
+int snprintf(char *sbuf, size_t n, const char *format, ...) {
+  va_list arg;
+  int done;
+
+  va_start(arg, format);
+  done = vsnprintf(sbuf, n, format, arg);
+  va_end(arg);
+
+  return done;
+}

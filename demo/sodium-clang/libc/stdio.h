@@ -96,6 +96,9 @@ static void debug_stop() {
     asm("wfi");
 }
 
+int snprintf(char *sbuf, size_t n, const char *format, ...);
+int vsnprintf(char *sbuf, size_t n, const char *format, va_list args);
+
 #define CLOCKS_PER_SEC  (50*1000000)
 
 static int clock() {    //return system tick in microsecond
