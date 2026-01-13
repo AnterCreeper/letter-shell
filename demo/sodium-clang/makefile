@@ -7,7 +7,7 @@ all : mkdir out
 
 out : crt.o libc.o main.o shell_port.o shell.o shell_ext.o shell_cmd_list.o
 	$(LD) -o build/out -T link.ld \
-	build/crt.o build/vsnprintf.o build/string.o build/divsi.o build/divhi.o \
+	build/crt.o build/vsnprintf.o build/string.o build/divsi.o build/divhi.o build/ashlsi3.o \
 	build/main.o build/shell_port.o \
 	build/shell.o build/shell_ext.o build/shell_cmd_list.o
 	$(PREFIX)/llvm-objcopy build/out -O binary build/firmware.bin
@@ -16,11 +16,12 @@ out : crt.o libc.o main.o shell_port.o shell.o shell_ext.o shell_cmd_list.o
 crt.o : crt.S
 	$(CC) $(CCOPT) -c crt.S -o build/crt.o
 
-libc.o : vsnprintf.c string.c divsi.c divhi.c
+libc.o : vsnprintf.c string.c divsi.c divhi.c ashlsi3.c
 	$(CC) $(CCOPT) -c vsnprintf.c -I ./ -o build/vsnprintf.o
 	$(CC) $(CCOPT) -c string.c -I ./ -o build/string.o
 	$(CC) $(CCOPT) -c divsi.c -I ./ -o build/divsi.o
 	$(CC) $(CCOPT) -c divhi.c -I ./ -o build/divhi.o
+	$(CC) $(CCOPT) -c ashlsi3.c -I ./ -o build/ashlsi3.o
 
 main.o : main.c shell_port.h
 	$(CC) $(CCOPT) -c main.c -I ./ -I ../../src -o build/main.o

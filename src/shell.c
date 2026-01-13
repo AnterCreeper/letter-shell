@@ -150,7 +150,7 @@ static Shell *shellList[SHELL_MAX_NUMBER] = {NULL};
 
 
 static void shellAdd(Shell *shell);
-static void shellWriteCommandLine(Shell *shell, unsigned char newline);
+static void shellWriteCommandLine(Shell *shell, int newline);
 static void shellWriteReturnValue(Shell *shell, int value);
 static int shellShowVar(Shell *shell, ShellCommand *command);
 static void shellSetUser(Shell *shell, const ShellCommand *user);
@@ -322,7 +322,7 @@ static size_t shellWriteCommandDesc(Shell *shell, const char *string)
  * @param newline 新行
  * 
  */
-static void shellWriteCommandLine(Shell *shell, unsigned char newline)
+static void shellWriteCommandLine(Shell *shell, int newline)
 {
     if (shell->status.isChecked)
     {
@@ -408,10 +408,10 @@ void shellScan(Shell *shell, char *fmt, ...)
  * @param shell shell对象
  * @param command ShellCommand
  * 
- * @return signed char 0 当前用户具有该命令权限
- * @return signec char -1 当前用户不具有该命令权限
+ * @return int 0 当前用户具有该命令权限
+ * @return int -1 当前用户不具有该命令权限
  */
-signed char shellCheckPermission(Shell *shell, ShellCommand *command)
+int shellCheckPermission(Shell *shell, ShellCommand *command)
 {
     return ((!command->attr.attrs.permission
                 || command->attr.attrs.type == SHELL_TYPE_USER
@@ -533,7 +533,7 @@ static size_t shellStringCompare(char* dest, char *src)
 static const char* shellGetCommandName(ShellCommand *command)
 {
     static char buffer[9];
-    for (unsigned char i = 0; i < 9; i++)
+    for (int i = 0; i < 9; i++)
     {
         buffer[i] = '0';
     }
@@ -620,7 +620,7 @@ void shellListItem(Shell *shell, ShellCommand *item)
     }
 #if SHELL_HELP_SHOW_PERMISSION == 1
     shellWriteString(shell, "  ");
-    for (signed char i = 7; i >= 0; i--)
+    for (int i = 7; i >= 0; i--)
     {
         shellWriteByte(shell, item->attr.attrs.permission & (1 << i) ? 'x' : '-');
     }
@@ -740,7 +740,7 @@ void shellListAll(Shell *shell)
  * @param shell shell对象
  * @param length 删除长度
  */
-void shellDeleteCommandLine(Shell *shell, unsigned char length)
+void shellDeleteCommandLine(Shell *shell, size_t length)
 {
     while (length--)
     {
@@ -816,9 +816,9 @@ void shellInsertByte(Shell *shell, char data)
  * @param shell shell对象
  * @param direction 删除方向 {@code 1}删除光标前字符 {@code -1}删除光标处字符
  */
-void shellDeleteByte(Shell *shell, signed char direction)
+void shellDeleteByte(Shell *shell, int direction)
 {
-    char offset = (direction == -1) ? 1 : 0;
+    int offset = (direction == -1) ? 1 : 0;
 
     if ((shell->parser.cursor == 0 && direction == 1)
         || (shell->parser.cursor == shell->parser.length && direction == -1))
@@ -866,8 +866,8 @@ void shellDeleteByte(Shell *shell, signed char direction)
  */
 static void shellParserParam(Shell *shell)
 {
-    unsigned char quotes = 0;
-    unsigned char record = 1;
+    int quotes = 0;
+    int record = 1;
 
     for (int i = 0; i < SHELL_PARAMETER_MAX_NUMBER; i++)
     {
@@ -875,7 +875,7 @@ static void shellParserParam(Shell *shell)
     }
 
     shell->parser.paramCount = 0;
-    for (unsigned int i = 0; i < shell->parser.length; i++)
+    for (int i = 0; i < shell->parser.length; i++)
     {
         if (quotes != 0
             || (shell->parser.buffer[i] != ' '
@@ -917,7 +917,7 @@ static void shellParserParam(Shell *shell)
 static void shellRemoveParamQuotes(Shell *shell)
 {
     size_t paramLength;
-    for (unsigned int i = 0; i < shell->parser.paramCount; i++)
+    for (int i = 0; i < shell->parser.paramCount; i++)
     {
         if (shell->parser.param[i][0] == '\"')
         {
@@ -1155,9 +1155,9 @@ setVar, shellSetVar, set var);
  * @param shell shell对象
  * @param command 命令
  * 
- * @return unsigned int 命令返回值
+ * @return int 命令返回值
  */
-unsigned int shellRunCommand(Shell *shell, ShellCommand *command)
+int shellRunCommand(Shell *shell, ShellCommand *command)
 {
     int returnValue = 0;
     shell->status.isActive = 1;
@@ -1306,7 +1306,7 @@ static void shellHistoryAdd(Shell *shell)
  * @param shell shell对象
  * @param dir 方向 {@code <0}往上查找 {@code >0}往下查找
  */
-static void shellHistory(Shell *shell, signed char dir)
+static void shellHistory(Shell *shell, int dir)
 {
     if (dir > 0)
     {
@@ -1674,7 +1674,7 @@ void shellHandler(Shell *shell, char data)
 #endif
 
     /* 根据记录的按键键值计算当前字节在按键键值中的偏移 */
-    char keyByteOffset = 24;
+    int keyByteOffset = 24;
     int32_t keyFilter = 0x00000000;
     if ((shell->parser.keyValue & 0x0000FF00) != 0x00000000)
     {
@@ -1702,13 +1702,13 @@ void shellHandler(Shell *shell, char data)
         {
             /* 对输入的字节同按键键值进行匹配 */
             if ((base[i].data.key.value & keyFilter) == shell->parser.keyValue
-                && (base[i].data.key.value & (0xFF << keyByteOffset))
-                    == (data << keyByteOffset))
+                && (base[i].data.key.value & ((int32_t)0xFF << keyByteOffset))
+                    == ((int32_t)data << keyByteOffset))
             {
-                shell->parser.keyValue |= data << keyByteOffset;
+                shell->parser.keyValue |= (int32_t)data << keyByteOffset;
                 data = 0x00;
                 if (keyByteOffset == 0 
-                    || (base[i].data.key.value & (0xFF << (keyByteOffset - 8)))
+                    || (base[i].data.key.value & ((int32_t)0xFF << (keyByteOffset - 8)))
                         == 0x00000000)
                 {
                     if (base[i].data.key.function)
