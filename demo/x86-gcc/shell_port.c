@@ -20,7 +20,6 @@
 Shell shell;
 char shellBuffer[512];
 ShellFs shellFs;
-char shellPathBuffer[512] = "/";
 
 /**
  * @brief 用户shell写
@@ -78,16 +77,9 @@ size_t userShellListDir(char *path, char *buffer, size_t maxLen)
  */
 void userShellInit(void)
 {
-    shellFs.getcwd = getcwd;
-    shellFs.chdir = chdir;
-    shellFs.listdir = userShellListDir;
-    shellFsInit(&shellFs, shellPathBuffer, 512);
-
     shell.write = userShellWrite;
     shell.read = userShellRead;
-    shellSetPath(&shell, shellPathBuffer);
     shellInit(&shell, shellBuffer, 512);
-    shellCompanionAdd(&shell, SHELL_COMPANION_ID_FS, &shellFs);
 }
 
 

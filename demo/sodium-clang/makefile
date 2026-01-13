@@ -1,4 +1,4 @@
-CCOPT=-O2 --target=sodium16 -fPIC
+CCOPT=-Os --target=sodium16 -mllvm -sodium-pair-spillrestore -fPIC
 PREFIX=/home/hp/llvm-project/llvm/build/bin
 CC=$(PREFIX)/clang
 LD=$(PREFIX)/ld.lld
