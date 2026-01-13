@@ -315,25 +315,25 @@ typedef struct shell_def
     } info;
     struct
     {
-        unsigned short length;                                  /**< 输入数据长度 */
-        unsigned short cursor;                                  /**< 当前光标位置 */
+        uint16_t length;                                        /**< 输入数据长度 */
+        uint16_t cursor;                                        /**< 当前光标位置 */
         char *buffer;                                           /**< 输入缓冲 */
         char *param[SHELL_PARAMETER_MAX_NUMBER];                /**< 参数 */
-        unsigned short bufferSize;                              /**< 输入缓冲大小 */
-        unsigned short paramCount;                              /**< 参数数量 */
-        int keyValue;                                           /**< 输入按键键值 */
+        uint16_t bufferSize;                                    /**< 输入缓冲大小 */
+        uint16_t paramCount;                                    /**< 参数数量 */
+        int32_t keyValue;                                       /**< 输入按键键值 */
     } parser;
     struct
     {
         char *item[SHELL_HISTORY_MAX_NUMBER];                   /**< 历史记录 */
-        unsigned short number;                                  /**< 历史记录数 */
-        unsigned short record;                                  /**< 当前记录位置 */
-        signed short offset;                                    /**< 当前历史记录偏移 */
+        int16_t offset;                                         /**< 当前历史记录偏移 */
+        uint16_t number;                                        /**< 历史记录数 */
+        uint16_t record;                                        /**< 当前记录位置 */
     } history;
     struct
     {
         void *base;                                             /**< 命令表基址 */
-        unsigned short count;                                   /**< 命令数量 */
+        uint16_t count;                                         /**< 命令数量 */
     } commandList;
     struct
     {
@@ -363,7 +363,7 @@ typedef struct shell_command
             unsigned char reserve : 1;                          /**< 保留 */
             unsigned char paramNum : 4;                         /**< 参数数量 */
         } attrs;
-        int value;
+        int32_t value;
     } attr;                                                     /**< 属性 */
     union
     {
@@ -408,8 +408,8 @@ typedef struct
 #define shellSetPath(_shell, _path)     (_shell)->info.path = _path
 #define shellGetPath(_shell)            ((_shell)->info.path)
 
-void shellInit(Shell *shell, char *buffer, unsigned short size);
-unsigned short shellWriteString(Shell *shell, const char *string);
+void shellInit(Shell *shell, char *buffer, uint16_t size);
+size_t shellWriteString(Shell *shell, const char *string);
 void shellPrint(Shell *shell, char *fmt, ...);
 void shellScan(Shell *shell, char *fmt, ...);
 Shell* shellGetCurrent(void);

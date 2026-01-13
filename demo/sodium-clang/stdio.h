@@ -7,8 +7,6 @@
 #include "stdint.h"
 #include <stdarg.h>
 
-#define CLOCKS_PER_SEC  (50*1000000)
-
 static void __attribute__((always_inline)) dcache_invalid(void* data) {
     unsigned *ptr = (unsigned *)data;
     __asm__ volatile("dc.invd\t%0" : : "m"(*ptr));
@@ -97,6 +95,8 @@ static void debug_flush() {
 static void debug_stop() {
     asm("wfi");
 }
+
+#define CLOCKS_PER_SEC  (50*1000000)
 
 static int clock() {    //return system tick in microsecond
     unsigned long t;

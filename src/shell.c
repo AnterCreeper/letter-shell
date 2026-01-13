@@ -43,7 +43,7 @@ const ShellCommand shellUserDefault SECTION("shellCommand") =
     #endif
 #else
     extern const ShellCommand shellCommandList[];
-    extern const unsigned short shellCommandCount;
+    extern const uint16_t shellCommandCount;
 #endif
 
 
@@ -157,14 +157,14 @@ static void shellSetUser(Shell *shell, const ShellCommand *user);
 ShellCommand* shellSeekCommand(Shell *shell,
                                const char *cmd,
                                ShellCommand *base,
-                               unsigned short compareLength);
+                               size_t compareLength);
 
 /**
  * @brief shell 初始化
  * 
  * @param shell shell对象
  */
-void shellInit(Shell *shell, char *buffer, unsigned short size)
+void shellInit(Shell *shell, char *buffer, uint16_t size)
 {
     shell->parser.length = 0;
     shell->parser.cursor = 0;
@@ -176,7 +176,7 @@ void shellInit(Shell *shell, char *buffer, unsigned short size)
 
     shell->parser.buffer = buffer;
     shell->parser.bufferSize = size / (SHELL_HISTORY_MAX_NUMBER + 1);
-    for (short i = 0; i < SHELL_HISTORY_MAX_NUMBER; i++)
+    for (int i = 0; i < SHELL_HISTORY_MAX_NUMBER; i++)
     {
         shell->history.item[i] = buffer + shell->parser.bufferSize * (i + 1);
     }
@@ -223,7 +223,7 @@ void shellInit(Shell *shell, char *buffer, unsigned short size)
  */
 static void shellAdd(Shell *shell)
 {
-    for (short i = 0; i < SHELL_MAX_NUMBER; i++)
+    for (int i = 0; i < SHELL_MAX_NUMBER; i++)
     {
         if (shellList[i] == NULL)
         {
@@ -241,7 +241,7 @@ static void shellAdd(Shell *shell)
  */
 Shell* shellGetCurrent(void)
 {
-    for (short i = 0; i < SHELL_MAX_NUMBER; i++)
+    for (int i = 0; i < SHELL_MAX_NUMBER; i++)
     {
         if (shellList[i] && shellList[i]->status.isActive)
         {
@@ -270,11 +270,11 @@ static void shellWriteByte(Shell *shell, const char data)
  * @param shell shell对象
  * @param string 字符串数据
  * 
- * @return unsigned short 写入字符的数量
+ * @return size_t 写入字符的数量
  */
-unsigned short shellWriteString(Shell *shell, const char *string)
+size_t shellWriteString(Shell *shell, const char *string)
 {
-    unsigned short count = 0;
+    size_t count = 0;
     SHELL_ASSERT(shell->write, return 0);
     while(*string)
     {
@@ -291,11 +291,11 @@ unsigned short shellWriteString(Shell *shell, const char *string)
  * @param shell shell对象
  * @param string 字符串数据
  * 
- * @return unsigned short 写入字符的数量
+ * @return size_t 写入字符的数量
  */
-static unsigned short shellWriteCommandDesc(Shell *shell, const char *string)
+static size_t shellWriteCommandDesc(Shell *shell, const char *string)
 {
-    unsigned short count = 0;
+    size_t count = 0;
     SHELL_ASSERT(shell->write, return 0);
     while(*string
         && *string != '\r'
@@ -378,7 +378,7 @@ void shellScan(Shell *shell, char *fmt, ...)
 {
     char buffer[SHELL_SCAN_BUFFER];
     va_list vargs;
-    short index = 0;
+    int index = 0;
 
     SHELL_ASSERT(shell, return);
 
@@ -429,17 +429,17 @@ signed char shellCheckPermission(Shell *shell, ShellCommand *command)
  * @param value 数值
  * @param buffer 缓冲
  * 
- * @return signed char 转换后有效数据长度
+ * @return size_t 转换后有效数据长度
  */
-signed char shellToHex(unsigned int value, char *buffer)
+size_t shellToHex(uint32_t value, char *buffer)
 {
     char byte;
-    unsigned char i = 8;
-    buffer[8] = 0;
+    size_t i = 8;
+    buffer[8] = '\0';
     while (value)
     {
-        byte = value & 0x0000000F;
-        buffer[--i] = (byte > 9) ? (byte + 87) : (byte + 48);
+        byte = value & 0x0F;
+        buffer[--i] = (byte > 9) ? (byte - 10 + 'a') : (byte + '0');
         value >>= 4;
     }
     return 8 - i;
@@ -452,11 +452,11 @@ signed char shellToHex(unsigned int value, char *buffer)
  * @param value 数值
  * @param buffer 缓冲
  * 
- * @return signed char 转换后有效数据长度
+ * @return size_t 转换后有效数据长度
  */
-signed char shellToDec(int value, char *buffer)
+size_t shellToDec(int value, char *buffer)
 {
-    unsigned char i = 11;
+    size_t i = 11;
     int v = value;
     if (value < 0)
     {
@@ -484,11 +484,11 @@ signed char shellToDec(int value, char *buffer)
  * 
  * @param dest 目标字符串
  * @param src 源字符串
- * @return unsigned short 字符串长度
+ * @return size_t 字符串长度
  */
-static unsigned short shellStringCopy(char *dest, char* src)
+static size_t shellStringCopy(char *dest, char* src)
 {
-    unsigned short count = 0;
+    size_t count = 0;
     while (*(src + count))
     {
         *(dest + count) = *(src + count);
@@ -504,12 +504,12 @@ static unsigned short shellStringCopy(char *dest, char* src)
  * 
  * @param dest 目标字符串
  * @param src 源字符串
- * @return unsigned short 匹配长度
+ * @return size_t 匹配长度
  */
-static unsigned short shellStringCompare(char* dest, char *src)
+static size_t shellStringCompare(char* dest, char *src)
 {
-    unsigned short match = 0;
-    unsigned short i = 0;
+    size_t match = 0;
+    size_t i = 0;
 
     while (*(dest +i) && *(src + i))
     {
@@ -591,7 +591,7 @@ static const char* shellGetCommandDesc(ShellCommand *command)
  */
 void shellListItem(Shell *shell, ShellCommand *item)
 {
-    short spaceLength;
+    int spaceLength;
 
     spaceLength = 22 - shellWriteString(shell, shellGetCommandName(item));
     spaceLength = (spaceLength > 0) ? spaceLength : 4;
@@ -640,7 +640,7 @@ void shellListCommand(Shell *shell)
 {
     ShellCommand *base = (ShellCommand *)shell->commandList.base;
     shellWriteString(shell, shellText[SHELL_TEXT_CMD_LIST]);
-    for (short i = 0; i < shell->commandList.count; i++)
+    for (int i = 0; i < shell->commandList.count; i++)
     {
         if (base[i].attr.attrs.type <= SHELL_TYPE_CMD_FUNC
             && shellCheckPermission(shell, &base[i]) == 0)
@@ -660,7 +660,7 @@ void shellListVar(Shell *shell)
 {
     ShellCommand *base = (ShellCommand *)shell->commandList.base;
     shellWriteString(shell, shellText[SHELL_TEXT_VAR_LIST]);
-    for (short i = 0; i < shell->commandList.count; i++)
+    for (int i = 0; i < shell->commandList.count; i++)
     {
         if (base[i].attr.attrs.type > SHELL_TYPE_CMD_FUNC
             && base[i].attr.attrs.type <= SHELL_TYPE_VAR_NODE
@@ -681,7 +681,7 @@ void shellListUser(Shell *shell)
 {
     ShellCommand *base = (ShellCommand *)shell->commandList.base;
     shellWriteString(shell, shellText[SHELL_TEXT_USER_LIST]);
-    for (short i = 0; i < shell->commandList.count; i++)
+    for (int i = 0; i < shell->commandList.count; i++)
     {
         if (base[i].attr.attrs.type > SHELL_TYPE_VAR_NODE
             && base[i].attr.attrs.type <= SHELL_TYPE_USER
@@ -702,7 +702,7 @@ void shellListKey(Shell *shell)
 {
     ShellCommand *base = (ShellCommand *)shell->commandList.base;
     shellWriteString(shell, shellText[SHELL_TEXT_KEY_LIST]);
-    for (short i = 0; i < shell->commandList.count; i++)
+    for (int i = 0; i < shell->commandList.count; i++)
     {
         if (base[i].attr.attrs.type > SHELL_TYPE_USER
             && base[i].attr.attrs.type <= SHELL_TYPE_KEY
@@ -756,7 +756,7 @@ void shellDeleteCommandLine(Shell *shell, unsigned char length)
  */
 void shellClearCommandLine(Shell *shell)
 {
-    for (short i = shell->parser.length - shell->parser.cursor; i > 0; i--)
+    for (int i = shell->parser.length - shell->parser.cursor; i > 0; i--)
     {
         shellWriteByte(shell, ' ');
     }
@@ -791,18 +791,18 @@ void shellInsertByte(Shell *shell, char data)
     }
     else if (shell->parser.cursor < shell->parser.length)
     {
-        for (short i = shell->parser.length - shell->parser.cursor; i > 0; i--)
+        for (int i = shell->parser.length - shell->parser.cursor; i > 0; i--)
         {
             shell->parser.buffer[shell->parser.cursor + i] = 
                 shell->parser.buffer[shell->parser.cursor + i - 1];
         }
         shell->parser.buffer[shell->parser.cursor++] = data;
         shell->parser.buffer[++shell->parser.length] = 0;
-        for (short i = shell->parser.cursor - 1; i < shell->parser.length; i++)
+        for (int i = shell->parser.cursor - 1; i < shell->parser.length; i++)
         {
             shellWriteByte(shell, shell->parser.buffer[i]);
         }
-        for (short i = shell->parser.length - shell->parser.cursor; i > 0; i--)
+        for (int i = shell->parser.length - shell->parser.cursor; i > 0; i--)
         {
             shellWriteByte(shell, '\b');
         }
@@ -834,7 +834,7 @@ void shellDeleteByte(Shell *shell, signed char direction)
     }
     else
     {
-        for (short i = offset; i < shell->parser.length - shell->parser.cursor; i++)
+        for (int i = offset; i < shell->parser.length - shell->parser.cursor; i++)
         {
             shell->parser.buffer[shell->parser.cursor + i - 1] = 
                 shell->parser.buffer[shell->parser.cursor + i];
@@ -846,12 +846,12 @@ void shellDeleteByte(Shell *shell, signed char direction)
             shellWriteByte(shell, '\b');
         }
         shell->parser.buffer[shell->parser.length] = 0;
-        for (short i = shell->parser.cursor; i < shell->parser.length; i++)
+        for (int i = shell->parser.cursor; i < shell->parser.length; i++)
         {
             shellWriteByte(shell, shell->parser.buffer[i]);
         }
         shellWriteByte(shell, ' ');
-        for (short i = shell->parser.length - shell->parser.cursor + 1; i > 0; i--)
+        for (int i = shell->parser.length - shell->parser.cursor + 1; i > 0; i--)
         {
             shellWriteByte(shell, '\b');
         }
@@ -869,13 +869,13 @@ static void shellParserParam(Shell *shell)
     unsigned char quotes = 0;
     unsigned char record = 1;
 
-    for (short i = 0; i < SHELL_PARAMETER_MAX_NUMBER; i++)
+    for (int i = 0; i < SHELL_PARAMETER_MAX_NUMBER; i++)
     {
         shell->parser.param[i] = NULL;
     }
 
     shell->parser.paramCount = 0;
-    for (unsigned short i = 0; i < shell->parser.length; i++)
+    for (unsigned int i = 0; i < shell->parser.length; i++)
     {
         if (quotes != 0
             || (shell->parser.buffer[i] != ' '
@@ -916,8 +916,8 @@ static void shellParserParam(Shell *shell)
  */
 static void shellRemoveParamQuotes(Shell *shell)
 {
-    unsigned short paramLength;
-    for (unsigned short i = 0; i < shell->parser.paramCount; i++)
+    size_t paramLength;
+    for (unsigned int i = 0; i < shell->parser.paramCount; i++)
     {
         if (shell->parser.param[i][0] == '\"')
         {
@@ -945,12 +945,12 @@ static void shellRemoveParamQuotes(Shell *shell)
 ShellCommand* shellSeekCommand(Shell *shell,
                                const char *cmd,
                                ShellCommand *base,
-                               unsigned short compareLength)
+                               size_t compareLength)
 {
     const char *name;
-    unsigned short count = shell->commandList.count -
+    int count = shell->commandList.count -
         ((int)base - (int)shell->commandList.base) / sizeof(ShellCommand);
-    for (unsigned short i = 0; i < count; i++)
+    for (int i = 0; i < count; i++)
     {
         if (base[i].attr.attrs.type == SHELL_TYPE_KEY
             || shellCheckPermission(shell, &base[i]) != 0)
@@ -1098,7 +1098,7 @@ static int shellShowVar(Shell *shell, ShellCommand *command)
     default:
         shellWriteString(shell, &buffer[11 - shellToDec(value, buffer)]);
         shellWriteString(shell, ", 0x");
-        for (short i = 0; i < 11; i++)
+        for (int i = 0; i < 11; i++)
         {
             buffer[i] = '0';
         }
@@ -1259,7 +1259,7 @@ static void shellWriteReturnValue(Shell *shell, int value)
     shellWriteString(shell, "Return: ");
     shellWriteString(shell, &buffer[11 - shellToDec(value, buffer)]);
     shellWriteString(shell, ", 0x");
-    for (short i = 0; i < 11; i++)
+    for (int i = 0; i < 11; i++)
     {
         buffer[i] = '0';
     }
@@ -1473,10 +1473,10 @@ SHELL_EXPORT_KEY(SHELL_CMD_PERMISSION(0)|SHELL_CMD_ENABLE_UNCHECKED,
  */
 void shellTab(Shell *shell)
 {
-    unsigned short maxMatch = shell->parser.bufferSize;
-    unsigned short lastMatchIndex = 0;
-    unsigned short matchNum = 0;
-    unsigned short length;
+    size_t maxMatch = shell->parser.bufferSize;
+    size_t lastMatchIndex = 0;
+    size_t matchNum = 0;
+    size_t length;
 
     if (shell->parser.length == 0)
     {
@@ -1487,7 +1487,7 @@ void shellTab(Shell *shell)
     {
         shell->parser.buffer[shell->parser.length] = 0;
         ShellCommand *base = (ShellCommand *)shell->commandList.base;
-        for (short i = 0; i < shell->commandList.count; i++)
+        for (int i = 0; i < shell->commandList.count; i++)
         {
             if (shellCheckPermission(shell, &base[i]) == 0
                 && shellStringCompare(shell->parser.buffer,
@@ -1542,7 +1542,7 @@ void shellTab(Shell *shell)
             && SHELL_GET_TICK() - shell->info.activeTime < SHELL_DOUBLE_CLICK_TIME)
         {
             shellClearCommandLine(shell);
-            for (short i = shell->parser.length; i >= 0; i--)
+            for (int i = shell->parser.length; i >= 0; i--)
             {
                 shell->parser.buffer[i + 5] = shell->parser.buffer[i];
             }
@@ -1694,7 +1694,7 @@ void shellHandler(Shell *shell, char data)
 
     /* 遍历ShellCommand列表，尝试进行按键键值匹配 */
     ShellCommand *base = (ShellCommand *)shell->commandList.base;
-    for (short i = 0; i < shell->commandList.count; i++)
+    for (int i = 0; i < shell->commandList.count; i++)
     {
         /* 判断是否是按键定义并验证权限 */
         if (base[i].attr.attrs.type == SHELL_TYPE_KEY
@@ -1752,7 +1752,7 @@ void shellWriteEndLine(Shell *shell, char *buffer, int len)
         if (shell->parser.length > 0)
         {
             shellWriteString(shell, shell->parser.buffer);
-            for (short i = 0; i < shell->parser.length - shell->parser.cursor; i++)
+            for (int i = 0; i < shell->parser.length - shell->parser.cursor; i++)
             {
                 shell->write('\b');
             }

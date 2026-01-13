@@ -17,7 +17,7 @@
 extern ShellCommand* shellSeekCommand(Shell *shell,
                                       const char *cmd,
                                       ShellCommand *base,
-                                      unsigned short compareLength);
+                                      size_t compareLength);
 extern int shellGetVarValue(Shell *shell, ShellCommand *command);
 
 /**
@@ -136,7 +136,7 @@ static char shellExtParseChar(char *string)
 static char* shellExtParseString(char *string)
 {
     char *p = string;
-    unsigned short index = 0;
+    int index = 0;
 
     if (*string == '\"')
     {

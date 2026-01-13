@@ -97,7 +97,7 @@ const ShellCommand shellCommandList[] =
  * @brief shell命令表大小
  * 
  */
-const unsigned short shellCommandCount 
+const uint16_t shellCommandCount
     = sizeof(shellCommandList) / sizeof(ShellCommand);
 
 #endif
