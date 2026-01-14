@@ -115,17 +115,20 @@ int vsnprintf(char *sbuf, size_t n, const char *format, va_list args)
   if (sbuf == NULL) return pc;
   char** out = &sbuf;
 
-  int width, pad;
   for (char* finish = &sbuf[n-1]; *format != '\0' && *out != finish; ++format) {
     if (*format == '%') {
       ++format;
       if (*format == '\0') break;
       if (*format == '%') goto bypass;
       //format
-      width = pad = 0;
+      int width = 0, pad = 0;
       if (*format == '-') {
         ++format;
         pad = PAD_RIGHT;
+      }
+      if (*format == '*') {
+        ++format;
+        width = va_arg(args, unsigned int);
       }
       while (*format == '0') {
         ++format;
@@ -137,7 +140,6 @@ int vsnprintf(char *sbuf, size_t n, const char *format, va_list args)
       }
       //qualifier
       int qualifier = 0;
-      if (*format == '\0') break;
       while (*format == 'l' || *format == 'L') {
         ++format;
         ++qualifier;

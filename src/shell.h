@@ -307,7 +307,7 @@ typedef struct shell_def
     struct
     {
         const struct shell_command *user;                       /**< 当前用户 */
-        int activeTime;                                         /**< shell激活时间 */
+        clock_t activeTime;                                     /**< shell激活时间 */
         char *path;                                             /**< 当前shell路径 */
     #if SHELL_USING_COMPANION == 1
         struct shell_companion_object *companions;              /**< 伴生对象 */

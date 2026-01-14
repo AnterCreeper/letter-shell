@@ -454,10 +454,10 @@ size_t shellToHex(uint32_t value, char *buffer)
  * 
  * @return size_t 转换后有效数据长度
  */
-size_t shellToDec(int value, char *buffer)
+size_t shellToDec(int32_t value, char *buffer)
 {
     size_t i = 11;
-    int v = value;
+    int32_t v = value;
     if (value < 0)
     {
         v = -value;
@@ -1535,28 +1535,27 @@ void shellTab(Shell *shell)
         shellWriteString(shell, shell->parser.buffer);
     }
 
-    if (SHELL_GET_TICK())
+#if SHELL_GET_TICK
+    if (matchNum == 1
+        && shell->status.tabFlag
+        && SHELL_GET_TICK() - shell->info.activeTime < SHELL_DOUBLE_CLICK_TIME)
     {
-        if (matchNum == 1
-            && shell->status.tabFlag
-            && SHELL_GET_TICK() - shell->info.activeTime < SHELL_DOUBLE_CLICK_TIME)
+        shellClearCommandLine(shell);
+        for (int i = shell->parser.length; i >= 0; i--)
         {
-            shellClearCommandLine(shell);
-            for (int i = shell->parser.length; i >= 0; i--)
-            {
-                shell->parser.buffer[i + 5] = shell->parser.buffer[i];
-            }
-            shellStringCopy(shell->parser.buffer, "help");
-            shell->parser.buffer[4] = ' ';
-            shell->parser.length += 5;
-            shell->parser.cursor = shell->parser.length;
-            shellWriteString(shell, shell->parser.buffer);
+            shell->parser.buffer[i + 5] = shell->parser.buffer[i];
         }
-        else
-        {
-            shell->status.tabFlag = 1;
-        }
+        shellStringCopy(shell->parser.buffer, "help");
+        shell->parser.buffer[4] = ' ';
+        shell->parser.length += 5;
+        shell->parser.cursor = shell->parser.length;
+        shellWriteString(shell, shell->parser.buffer);
     }
+    else
+    {
+        shell->status.tabFlag = 1;
+    }
+#endif
 }
 SHELL_EXPORT_KEY(SHELL_CMD_PERMISSION(0), 0x09000000, shellTab, tab);
 
@@ -1663,8 +1662,7 @@ void shellHandler(Shell *shell, char data)
 
 #if SHELL_LOCK_TIMEOUT > 0
     if (shell->info.user->data.user.password
-        && strlen(shell->info.user->data.user.password) != 0
-        && SHELL_GET_TICK())
+        && strlen(shell->info.user->data.user.password) != 0)
     {
         if (SHELL_GET_TICK() - shell->info.activeTime > SHELL_LOCK_TIMEOUT)
         {
@@ -1728,10 +1726,9 @@ void shellHandler(Shell *shell, char data)
         shellNormalInput(shell, data);
     }
 
-    if (SHELL_GET_TICK())
-    {
-        shell->info.activeTime = SHELL_GET_TICK();
-    }
+#if SHELL_GET_TICK
+    shell->info.activeTime = SHELL_GET_TICK();
+#endif
 }
 
 

@@ -1,4 +1,6 @@
+#include "stdio.h"
 #include "string.h"
+#include "time.h"
 
 void *memset(void *str, int c, size_t n) {
     char *d = str;
@@ -52,4 +54,35 @@ int strncmp(const char *s1, const char *s2, size_t n) {
         s2++;
     }
     return (*(unsigned char *)s1) - (*(unsigned char *)s2);
+}
+
+clock_t clock() {
+    clock_t t;
+    __asm__ volatile("rcsr.d\t0x13, %0" : "=r"(t) : );
+    return t;
+}
+
+static uint32_t rng;
+static uint32_t inc;
+
+#define PCG_MULTIPLIER_32  747796405U
+#define PCG_INCREMENT_32   2891336453U
+
+uint16_t rand_r(uint32_t *seed) {
+    uint32_t oldstate = *seed;
+    // Advance internal state
+    *seed = oldstate * PCG_MULTIPLIER_32 + inc;
+    // Calculate output function (XSH RR), uses old state for max ILP
+    uint16_t value = ((oldstate >> 10u) ^ oldstate) >> 12u;
+    uint32_t rot = oldstate >> 28u;
+    return (value >> rot) | (value << ((- rot) & 15));
+}
+
+int rand() {
+    return rand_r(&rng);
+}
+
+void srand(int32_t seed) {
+    inc = PCG_INCREMENT_32;
+    rng = seed + inc;
 }

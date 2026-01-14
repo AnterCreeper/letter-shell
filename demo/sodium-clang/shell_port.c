@@ -1,5 +1,6 @@
 #include "shell.h"
 #include "stdio.h"
+#include "time.h"
 
 Shell shell;
 char shellBuffer[512];
@@ -25,3 +26,11 @@ void shellVersion(void)
 SHELL_EXPORT_CMD(
 SHELL_CMD_PERMISSION(0x00)|SHELL_CMD_TYPE(SHELL_TYPE_CMD_FUNC)|SHELL_CMD_DISABLE_RETURN,
 version, shellVersion, display shell version information.);
+
+void shellClock(void)
+{
+    shellPrint(shellGetCurrent(), "%08lx\n", clock());
+}
+SHELL_EXPORT_CMD(
+SHELL_CMD_PERMISSION(0x00)|SHELL_CMD_TYPE(SHELL_TYPE_CMD_FUNC)|SHELL_CMD_DISABLE_RETURN,
+clock, shellClock, display system clock ticks.);

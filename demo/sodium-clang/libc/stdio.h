@@ -99,12 +99,7 @@ static void debug_stop() {
 int snprintf(char *sbuf, size_t n, const char *format, ...);
 int vsnprintf(char *sbuf, size_t n, const char *format, va_list args);
 
-#define CLOCKS_PER_SEC  (50*1000000)
-
-static int clock() {    //return system tick in microsecond
-    unsigned long t;
-    __asm__ volatile("rcsr.d\t0x13, %0" : "=r"(t) : );
-    return t / CLOCKS_PER_SEC;
-}
+int rand();
+void srand(int32_t seed);
 
 #endif

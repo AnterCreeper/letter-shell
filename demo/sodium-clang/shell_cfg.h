@@ -12,6 +12,8 @@
 #ifndef __SHELL_CFG_H__
 #define __SHELL_CFG_H__
 
+#include "time.h"
+
 #pragma clang diagnostic ignored "-Wdeprecated-non-prototype"
 
 /**
@@ -129,7 +131,8 @@
  *        定义此宏为获取系统Tick，如`HAL_GetTick()`
  * @note 此宏不定义时无法使用双击tab补全命令help，无法使用shell超时锁定
  */
-#define     SHELL_GET_TICK()            clock()
+//#define     SHELL_GET_TICK()            0
+#define     SHELL_GET_TICK()            (clock() / (CLOCKS_PER_SEC / 1000))
 
 /**
  * @brief shell内存分配

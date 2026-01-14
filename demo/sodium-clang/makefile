@@ -3,20 +3,23 @@ PREFIX=/home/hp/llvm-project/llvm/build/bin
 CC=$(PREFIX)/clang
 LD=$(PREFIX)/ld.lld
 
+MERGEFILE=merge_std.c
+
 all : mkdir out
 
-out : libc.o shell.o shell_ext.o shell_cmd_list.o main.o shell_port.o
+out : libc.o shell.o shell_ext.o shell_cmd_list.o main.o shell_port.o 2048.o gfx.o engine.o merge.o
 	$(LD) -o build/out -T link.ld \
-	build/crt.o build/vsnprintf.o build/string.o build/divsi.o build/divhi.o build/ashlsi3.o \
+	build/crt.o build/libc.o build/vsnprintf.o build/divsi.o build/divhi.o build/ashlsi3.o \
 	build/shell.o build/shell_ext.o build/shell_cmd_list.o \
-	build/main.o build/shell_port.o
+	build/main.o build/shell_port.o \
+	build/2048.o build/gfx.o build/engine.o build/merge.o
 	$(PREFIX)/llvm-objcopy build/out -O binary build/firmware.bin
 	./coegen-x86_64 -b 16 -f xilinx build/firmware.bin > build/firmware.coe
 
-libc.o : ./libc/crt.S ./libc/vsnprintf.c ./libc/string.c ./libc/divsi.c ./libc/divhi.c ./libc/ashlsi3.c
+libc.o : ./libc/crt.S ./libc/vsnprintf.c ./libc/libc.c ./libc/divsi.c ./libc/divhi.c ./libc/ashlsi3.c
 	$(CC) $(CCOPT) -c ./libc/crt.S -o build/crt.o
+	$(CC) $(CCOPT) -c ./libc/libc.c -I ./ -I ./libc -o build/libc.o
 	$(CC) $(CCOPT) -c ./libc/vsnprintf.c -I ./ -I ./libc -o build/vsnprintf.o
-	$(CC) $(CCOPT) -c ./libc/string.c -I ./ -I ./libc -o build/string.o
 	$(CC) $(CCOPT) -c ./libc/divsi.c -I ./ -I ./libc -o build/divsi.o
 	$(CC) $(CCOPT) -c ./libc/divhi.c -I ./ -I ./libc -o build/divhi.o
 	$(CC) $(CCOPT) -c ./libc/ashlsi3.c -I ./ -I ./libc -o build/ashlsi3.o
@@ -35,6 +38,18 @@ main.o : main.c shell_port.h
 
 shell_port.o : shell_port.c ../../src/shell.h
 	$(CC) $(CCOPT) -c shell_port.c -I ./ -I ./libc -I ../../src -o build/shell_port.o
+
+2048.o: ./2048/2048.c ../../src/shell.h
+	$(CC) $(CCOPT) -c ./2048/2048.c -I ./ -I ./libc -I ./2048/ -I ../../src -o build/2048.o
+
+gfx.o: ./2048/gfx_terminal.c ../../src/shell.h
+	$(CC) $(CCOPT) -c ./2048/gfx_terminal.c -I ./ -I ./libc -I ./2048/ -I ../../src -o build/gfx.o
+
+engine.o: ./2048/engine.c
+	$(CC) $(CCOPT) -c ./2048/engine.c -I ./ -I ./libc -I ./2048/ -o build/engine.o
+
+merge.o: ./2048/$(MERGEFILE)
+	$(CC) $(CCOPT) -c ./2048/$(MERGEFILE) -I ./ -I ./libc -I ./2048/ -o build/merge.o
 
 .PHONY : all clean mkdir
 clean :
