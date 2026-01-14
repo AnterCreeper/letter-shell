@@ -37,7 +37,7 @@ void userShellWrite(char data)
  * @param data 数据
  * @return char 状态
  */
-signed char userShellRead(char *data)
+int userShellRead(char *data)
 {
     system("stty -echo");
     system("stty -icanon");

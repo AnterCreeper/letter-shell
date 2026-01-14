@@ -5,7 +5,7 @@
 #include "shell.h"
 
 #define printf(...) shellPrint(shellGetCurrent(), __VA_ARGS__)
-#define puts(str)   shellWriteString(shellGetCurrent(), str)
+#define puts(str)   shellWriteString(shellGetCurrent(), str)    //shellWriteString will not echo with additional newline character
 
 #define iterate(n, expression)\
     do {\
